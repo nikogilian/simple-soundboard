@@ -1,196 +1,293 @@
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Soundboard</title>
-  <script src="./jquery-v3.4.1.min.js"></script>
-  <script src="./definitions.js"></script>
-</head>
-<body>
-  <div id="doc" style="display: grid; grid: auto-flow / repeat(auto-fill, 270px); grid-gap: 10px"></div>
-  <script type="text/javascript" charset="utf-8">
-    let sound_definitions = soundboards[window.location.search.substring(1)];
-    if (sound_definitions === undefined) {
-      sound_definitions = [];
-      body = $(window.document.body);
-      body.append($('<h1>Available Soundboards<h1>'));
-      list_html = '<ul>'
-      for (const soundboard in soundboards) {
-        list_html += '<li><a href="?' + soundboard + '">' + soundboard + '</a></li>';
-      };
-      list_html += '</ul>'
-      body.append($(list_html));
+<html><head></head><body>f<title>WorkBox</title>
+<title>WorkBox</title><title>WorkBox</title><style>
+    .myform {
+    float: right;
+        margin-bottom: 50%;
     }
 
-    // Go through each sound definition and insert the HTML elements
-    // accordingly
-    for (let i = 0; i < sound_definitions.length; i += 1) {
+</style>
 
-      let sound_definition = sound_definitions[i];
-      let elem = $(
-        '<div class="audio_block" style="width: 270px;"></div>'
-      );
 
-      let name = '';
-      if (typeof(sound_definition) == 'string') {
-        // Definitions that are just strings are assumed to be just the URL for
-        // a single audio clip.
-        let sound_url = sound_definition;
-        let sound_name = sound_url.match(/.+\/(.+)\.\w{3}/)[1];
-        elem.append($(
-          '<audio src="' + sound_url + '" controls preload="metadata" autobuffer="true" title="' + sound_name + '" style="width: 100%; height: 15px;"></audio><br>'
-        ));
-        name = sound_name;
-        elem.append($('<button style="width: 50%;" class="quickplay">' + name + '</button>'));
-        elem.append($('<button style="width: 25%;" class="fadein">f in</button>'));
-        elem.append($('<button style="width: 25%;" class="fadeout">f out</button><br>'));
-        elem.append($('<button style="width: 20%;" class="volumedec10">-10%</button>'));
-        elem.append($('<button style="width: 20%;" class="volumeinc10">+10%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume0">0%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume50">50%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume100">100%</button><br>'));
-        elem.append($('<input class="loop" type="checkbox">loop</input>'));
-      } else if (typeof(sound_definition) == 'object') {
-        // Definitions that are objects are assumed to be hash objects that
-        // have two keys: 'name' and 'audio'. The 'audio' key is expected to be
-        // an array of audio clip URLs.
-        let sound_urls = sound_definition.audio;
-        for (let j = 0; j < sound_urls.length; j += 1) {
-          let sound_url = sound_urls[j];
-          let sound_name = sound_url.match(/.+\/(.+)\.\w{3}/)[1];
-          elem.append($(
-            '<audio src="' + sound_url + '" controls preload="metadata" autobuffer="true" title="' + sound_name + '" style="width: 100%; height: 15px;"></audio><br>'
-          ));
-        }
-        name = sound_definition.name;
-        elem.append($('<button style="width: 50%;" class="quickplay">' + name + '</button>'));
-        elem.append($('<button style="width: 25%;" class="fadein">f in</button>'));
-        elem.append($('<button style="width: 25%;" class="fadeout">f out</button><br>'));
-        elem.append($('<button style="width: 20%;" class="volumedec10">-10%</button>'));
-        elem.append($('<button style="width: 20%;" class="volumeinc10">+10%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume0">0%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume50">50%</button>'));
-        elem.append($('<button style="width: 20%;" class="volume100">100%</button><br>'));
-      }
 
-      $('#doc').append(elem);
-    }
 
-    // Do stuff after the document is done loading so that the audio clips are
-    // available for referencing
-    $(document).ready(function() {
 
-      // Go through each audio block to set up the play button handler to play
-      // some random audio in tbe audio block.
-      $('.audio_block').each(function(i, audio_block_elem) {
-        let audio_block = $(audio_block_elem);
-        let all_audio = audio_block.find('audio');
-        let audio = audio_block.find('audio')[0];
-        $(audio)
-          .click(function() {
-            console.log($(this).volume);
-          });
-        let quick_play_button = audio_block.find('button.quickplay')[0];
-        $(quick_play_button)
-          .click(function() {
-            if (audio_block.unplayed_indices === undefined ||
-                audio_block.unplayed_indices.length == 0) {
-              audio_block.unplayed_indices = Array();
-              for (let i = 0; i < all_audio.length; i += 1) {
-                audio_block.unplayed_indices.push(i);
-              }
-            }
-            let index_into_unplayed =
-              parseInt(Math.random() * audio_block.unplayed_indices.length);
-            let index_into_audio =
-              audio_block.unplayed_indices.splice(index_into_unplayed, 1)[0];
-            let audio = all_audio[index_into_audio];
-            audio.currentTime = 0;
-            audio.play();
-            if (audio.volume == 0.0) {
-              audio.volume = 1.0;
-            }
-          });
-        let fade_in_button = audio_block.find('button.fadein')[0];
-        $(fade_in_button)
-          .click(function() {
-            if (audio_block.unplayed_indices === undefined ||
-                audio_block.unplayed_indices.length == 0) {
-              audio_block.unplayed_indices = Array();
-              for (let i = 0; i < all_audio.length; i += 1) {
-                audio_block.unplayed_indices.push(i);
-              }
-            }
-            let index_into_unplayed =
-              parseInt(Math.random() * audio_block.unplayed_indices.length);
-            let index_into_audio =
-              audio_block.unplayed_indices.splice(index_into_unplayed, 1)[0];
-            let audio = all_audio[index_into_audio];
-            audio.currentTime = 0;
-            audio.play();
-            for (let i = 0; i < all_audio.length; i += 1) {
-              all_audio[i].volume = 0;
-              $(all_audio[i]).animate(
-                {'volume': 1},
-                4000);
-            }
-          });
-        let fade_out_button = audio_block.find('button.fadeout')[0];
-        $(fade_out_button)
-          .click(function() {
-            for (let i = 0; i < all_audio.length; i += 1) {
-              $(all_audio[i]).animate(
-                {'volume': 0},
-                4000,
-                function() {
-                  this.pause();
-                });
-            }
-          });
-        let quick_decrement_volume_button = audio_block.find('button.volumedec10')[0];
-        $(quick_decrement_volume_button)
-          .click(function() {
-            for (let i = 0; i < all_audio.length; i += 1) {
-              all_audio[i].volume = Math.max(0, all_audio[i].volume - 0.1);
-            }
-          });
-        let quick_increment_volume_button = audio_block.find('button.volumeinc10')[0];
-        $(quick_increment_volume_button)
-          .click(function() {
-            for (let i = 0; i < all_audio.length; i += 1) {
-              all_audio[i].volume = Math.min(1, all_audio[i].volume + 0.1);
-            }
-          });
-        for (const volume of [0, 50, 100]) {
-          let quick_volume_button = audio_block.find('button.volume' + volume.toString())[0];
-          $(quick_volume_button)
-            .click(function() {
-              for (let i = 0; i < all_audio.length; i += 1) {
-                all_audio[i].volume = volume / 100.0;
-              }
-            });
-        }
 
-        // If this isn't a group of audio then looping can be controlled using
-        // an input checkbox.
-        let audio_loop_checkbox = audio_block.find('.loop');
-        if (audio_loop_checkbox) {
-          audio_loop_checkbox = audio_loop_checkbox[0];
-          $(audio_loop_checkbox)
-            // If the loop checkbox is changed then we update the audio clip's
-            // looping state to match the checkbox state
-            .change(function() {
-              var checkbox = $(this);
-              $(all_audio).each(function (i, x) {
-                x.loop = checkbox.prop('checked');
-              });
-            })
-            // Automatically set audio clips that are longer than 60 seconds to
-            // loop
-            .prop('checked', (audio.loop = (audio.duration >= 60.0)));
-        }
-      });
-    });
-  </script>
-</body>
-</html>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: Arial;}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+
+
+
+
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'London')">About</button>
+  <button class="tablinks" onclick="openCity(event, 'Tokyo')">other</button>
+    <button class="tablinks" onclick="openCity(event, 'Paris')">Code button</button>
+</div>
+
+<div id="London" class="tabcontent">
+  <h3>About</h3>
+  <p>This is a workbox so you can play around with the tools around you!</p>
+</div>
+
+<div id="Paris" class="tabcontent">
+  <h3>code button</h3>
+    <button type="button" onclick="alert('Hello world!')">Test</button>
+ 
+ </div> <div id="Tokyo" class="tabcontent"> <h3>Other</h3> <p>go to other website </p><p><a href="https://nikogilian.github.io/day-button-press/">here</a></p>
+<p></p> </div> <script> function openCity(evt, cityName) { var i, tabcontent, tablinks; tabcontent = document.getElementsByClassName("tabcontent"); for (i = 0; i < tabcontent.length; i++) { tabcontent[i].style.display = "none"; } tablinks = document.getElementsByClassName("tablinks"); for (i = 0; i < tablinks.length; i++) { tablinks[i].className = tablinks[i].className.replace(" active", ""); } document.getElementById(cityName).style.display = "block"; evt.currentTarget.className += " active"; } </script>
+
+
+<div id="Tokyo" class="tabcontent">
+  <h3>other</h3>
+ <button type="button" onclick="alert('button')">click</button>
+</div>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+
+
+
+
+
+
+<div id="London" class="tabcontent">
+  <h3>About</h3>
+  <p>This is a workbox so you can play around with the tools around you!</p>
+</div>
+
+<div id="Paris" class="tabcontent">
+  <h3>Paris</h3>
+  <p>Paris is the capital of France.</p> 
+</div>
+
+<div id="Tokyo" class="tabcontent">
+  <h3>Tokyo</h3>
+  <p>Tokyo is the capital of Japan.</p>
+</div>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+   
+
+ 
+
+    
+    
+   
+
+ 
+
+<input type="Text" size="20" value="" name="text1" maxlength="15"> <form>
+    <div class="controls">
+
+        
+        <input type="text" placeholder="enter admin password" id="id" name="id">
+
+        <input type="reset" value="Reset">
+        <input type="submit" value="Submit">
+
+    </div>
+</form>
+
+
+<form>
+<input type="Text">
+<p>
+<input type="Submit" value="refresh page">
+</p></form><form>
+
+<input type="Text" placeholder="submiter" size="25" value="" <input=""></form><meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  
+<br>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="U8W45GRTWHG9U">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button">
+<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+<p> Donate to me if you want better websites because it will help me code! </p>
+    <button onclick="window.location.href = 'https://www.youtube.com/channel/UC9KQfykCatV5T86jxVV5jBQ';" style="
+    color: 255,0,0;
+    box-shadow: inset 0 0 0px 20px red;
+">my youtube</button>
+
+<br><br> <p></p>
+<input type="text" value="nikothekidgil@gmail.com" id="myInput" class="w3-input w3-border w3-left w3-margin-right w3-mobile" style="width:auto">
+<button onclick="myFunction()" onmouseout="outFunc()" class="w3-button w3-border w3-light-grey w3-left w3-mobile">
+  <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
+ to email me
+  </button>
+  <script>
+    <br>
+    </br>
+<p> Donate to me so i can code better and make better websites </p>
+
+function myFunction() {
+  var copyText = document.getElementById("myInput");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  document.execCommand('copy');
+  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Copied: " + copyText.value;
+}
+
+function myFunctionORIGINAL() {
+  var copyText = document.getElementById("myInput");
+  copyText.select();
+  document.execCommand("Copy");
+  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Copied: " + copyText.value;
+}
+
+function outFunc() {
+  var tooltip = document.getElementById("myTooltip");
+  tooltip.innerHTML = "Copy to clipboard";
+}
+</script>
+<br>
+<br>
+
+<input type="text" value="" id="myInput" class="w3-input w3-border w3-left w3-margin-right w3-mobile" style="width:auto">
+
+<button onclick="myFunction()" onmouseout="outFunc()" class="w3-button w3-border w3-light-grey w3-left w3-mobile">
+  <span class="tooltiptext" id="myTooltip">Copy to </span>
+ clipboard
+  </button>
+<script>
+
+function myFunction() {
+var copyText = document.getElementById("myInput");
+copyText.select();
+copyText.setSelectionRange(0, 99999);
+document.execCommand('copy');
+var tooltip = document.getElementById("myTooltip");
+tooltip.innerHTML = "Copied: " + copyText.value;
+}
+
+function myFunctionORIGINAL() {
+var copyText = document.getElementById("myInput");
+copyText.select();
+document.execCommand("Copy");
+var tooltip = document.getElementById("myTooltip");
+tooltip.innerHTML = "Copied: " + copyText.value;
+}
+
+function outFunc() {
+var tooltip = document.getElementById("myTooltip");
+tooltip.innerHTML = "Copy to clipboard";
+}
+</script>
+<br>
+<br>
+<button type="button" onclick="document.getElementById('demo').innerHTML = Date()">
+Click me to see the time.</button>
+
+<p id="demo">Tue Jan 21 2020 20:02:46 GMT-0800 (Pacific Standard Time)</p>
+<button onclick="document.getElementById('file-input').click();">Open file</button>
+<input id="file-input" type="file" name="name" style="display: none;">
+
+    <p>check box's</p>
+    <input type="checkbox" name="fruit" value="Apple">
+<input type="checkbox" name="fruit" value="Orange">
+<input type="checkbox" name="fruit" value="Banana">
+    <p> stretch box </p>
+    <textarea id="textarea" rows="3" style="margin: 10px; height: 15px; width: 15px; color: white; background: rgb(0, 0, 0);"></textarea>                                              <div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>
